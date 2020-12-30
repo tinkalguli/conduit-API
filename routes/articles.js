@@ -35,13 +35,24 @@ router.get("/:slug", async (req, res, next) => {
     try {
         var article = await (await Article.findOne({ slug })).execPopulate("author");
         article.author = {};
-        console.log(article)
         res.status(200).json({ article : articleInfo(article) });
     } catch (error) {
         next(error);
     }
 });
 
+function articleInfo(article) {
+    return {
+        slug : article.slug,
+        title : article.title,
+        description : article.description,
+        body : article.body,
+        tagList : article.tagList,
+        author : article.author,
+        createdAt : article.createdAt,
+        updatedAt : article.updatedAt
+    }
+}
 // update article
 router.put("/:id", (req, res, next) => {
     var id = req.params.id;
@@ -60,17 +71,6 @@ router.delete("/:id", (req, res, next) => {
     });
 });
 
-function articleInfo(article) {
-    return {
-        slug : article.slug,
-        title : article.title,
-        description : article.description,
-        body : article.body,
-        tagList : article.tagList,
-        author : article.author,
-        createdAt : article.createdAt,
-        updatedAt : article.updatedAt
-    }
-}
+
 
 module.exports = router;
