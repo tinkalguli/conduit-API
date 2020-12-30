@@ -9,7 +9,7 @@ router.get('/:username', jwt.verifyToken, async (req, res, next) => {
       var username = req.params.username;
       var user = await User.findOne({ username });
       var currentUser = await User.findById(req.user.userId);
-      var isFollowing = currentUser.followings ? currentUser.followings.includes(user.id) : false;
+      var isFollowing = currentUser.followings.includes(user.id);
       res.status(200).json({ profile : {...profileInfo(user), following : isFollowing } });
     } catch (error) {
       next(error);
@@ -22,7 +22,7 @@ router.post('/:username/follow', jwt.verifyToken, async (req, res, next) => {
       var username = req.params.username;
       var user = await User.findOne({ username });
       var currentUser = await User.findByIdAndUpdate(req.user.userId, { $addToSet : { followings : user.id }}, { new : true });
-      var isFollowing = currentUser.followings ? currentUser.followings.includes(user.id) : false;
+      var isFollowing = currentUser.followings.includes(user.id);
       res.status(200).json({ profile : {...profileInfo(user), following : isFollowing } });
     } catch (error) {
       next(error);
@@ -35,7 +35,7 @@ router.delete('/:username/follow', jwt.verifyToken, async (req, res, next) => {
       var username = req.params.username;
       var user = await User.findOne({ username });
       var currentUser = await User.findByIdAndUpdate(req.user.userId, { $pull : { followings : user.id }}, { new : true });
-      var isFollowing = currentUser.followings ? currentUser.followings.includes(user.id) : false;
+      var isFollowing = currentUser.followings.includes(user.id);
       res.status(200).json({ profile : {...profileInfo(user), following : isFollowing } });
     } catch (error) {
       next(error);
@@ -50,4 +50,4 @@ function profileInfo(user) {
     }
 }
 
-module.exports = router;
+module.exports = {router, profileInfo};
