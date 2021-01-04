@@ -8,9 +8,7 @@ router.get('/:username', jwt.verifyToken, async (req, res, next) => {
     try {
       var username = req.params.username;
       var user = await User.findOne({ username });
-      var currentUser = await User.findById(req.user.userId);
-      var isFollowing = currentUser.followings.includes(user.id);
-      res.status(200).json({ profile : {...profileInfo(user), following : isFollowing } });
+      res.status(200).json({ profile : profileInfo(user, req.user) });
     } catch (error) {
       next(error);
     }
@@ -21,9 +19,8 @@ router.post('/:username/follow', jwt.verifyToken, async (req, res, next) => {
     try {
       var username = req.params.username;
       var user = await User.findOne({ username });
-      var currentUser = await User.findByIdAndUpdate(req.user.userId, { $addToSet : { followings : user.id }}, { new : true });
-      var isFollowing = currentUser.followings.includes(user.id);
-      res.status(200).json({ profile : {...profileInfo(user), following : isFollowing } });
+      var currentUser = await User.findByIdAndUpdate(req.user.id, { $addToSet : { followings : user.id }}, { new : true });
+      res.status(200).json({ profile : profileInfo(user, currentUser) });
     } catch (error) {
       next(error);
     }
@@ -34,19 +31,20 @@ router.delete('/:username/follow', jwt.verifyToken, async (req, res, next) => {
     try {
       var username = req.params.username;
       var user = await User.findOne({ username });
-      var currentUser = await User.findByIdAndUpdate(req.user.userId, { $pull : { followings : user.id }}, { new : true });
-      var isFollowing = currentUser.followings.includes(user.id);
-      res.status(200).json({ profile : {...profileInfo(user), following : isFollowing } });
+      var currentUser = await User.findByIdAndUpdate(req.user.id, { $pull : { followings : user.id }}, { new : true });
+      res.status(200).json({ profile : profileInfo(user, currentUser) });
     } catch (error) {
       next(error);
     }
 });
 
-function profileInfo(user) {
+function profileInfo(user, currentUser) {
+    var isFollowing = currentUser ? currentUser.followings.includes(user.id) : false;
     return {
         username : user.username,
         bio : user.bio,
-        image : user.image
+        image : user.image,
+        following : isFollowing
     }
 }
 

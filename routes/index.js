@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
 // get current user
 router.get('/user', jwt.verifyToken, async (req, res, next) => {
   try {
-    var user = await User.findById(req.user.userId);
+    var user = await User.findById(req.user.id);
     res.status(200).json({ user : userInfo(user) });
   } catch (error) {
     next(error);
@@ -22,7 +22,7 @@ router.get('/user', jwt.verifyToken, async (req, res, next) => {
 // update current user
 router.put('/user', jwt.verifyToken, async (req, res, next) => {
   try {
-    var updatedUser = await User.findByIdAndUpdate(req.user.userId, req.body.user, { new : true });
+    var updatedUser = await User.findByIdAndUpdate(req.user.id, req.body.user, { new : true });
     res.status(200).json({ user : userInfo(updatedUser) });
   } catch (error) {
     next(error);

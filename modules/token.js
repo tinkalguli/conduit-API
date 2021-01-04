@@ -1,4 +1,5 @@
 var jwt = require("jsonwebtoken");
+var User = require("../models/User");
 
 exports.generateJWT = async (user) => {
     var payload = { userId : user.id, email : user.email };
@@ -7,12 +8,13 @@ exports.generateJWT = async (user) => {
 }
 
 exports.verifyToken = async (req, res, next) => {
-    console.log(req.headers);
+    // console.log(req.headers);
     var token = req.headers.authorization;
     if (token) {
         try {
             var payload = await jwt.verify(token, process.env.SECRET);
-            req.user = payload;
+            var user = await User.findById(payload.userId);
+            req.user = user;
             next();
         } catch (error) {
             res.status(401).json({ error });
