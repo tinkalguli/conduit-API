@@ -7,7 +7,8 @@ var articleSchema = new Schema({
     description : { type : String, minlength : 10 },
     body : { type : String, minlength : 20 },
     tagList : [{ type : String }],
-    favorites : [{ type : Schema.Types.ObjectId }],
+    favorites : [{ type : Schema.Types.ObjectId, ref : "User" }],
+    comments : [{ type : Schema.Types.ObjectId, ref : "Comment" }],
     author : { type : Schema.Types.ObjectId, required : true, ref : "User" }
 }, { timestamps : true });
 
