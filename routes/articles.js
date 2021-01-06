@@ -174,7 +174,39 @@ router.delete("/:slug/comments/:id", jwt.verifyToken, async (req, res, next) => 
     }
 });
 
+// favorite article
+router.post("/:slug/favorite", jwt.verifyToken, async (req, res, next) => {
+    var slug = req.params.slug;
+
+    try {
+        var article = await Article.findOneAndUpdate(
+            { slug }, { $addToSet : { favorites : req.user.id }}, { new : true })
+            .populate("author");
+
+        res.status(200).json({ article : {...articleInfo(article, req.user)} });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// unfavorite article
+router.delete("/:slug/favorite", jwt.verifyToken, async (req, res, next) => {
+    var slug = req.params.slug;
+
+    try {
+        var article = await Article.findOneAndUpdate(
+            { slug }, { $pull : { favorites : req.user.id }}, { new : true })
+            .populate("author");
+
+        res.status(200).json({ article : {...articleInfo(article, req.user)}});
+    } catch (error) {
+        next(error);
+    }
+});
+
 function articleInfo(article, currentUser) {
+    var isFavorite = currentUser ? article.favorites.includes(currentUser.id) : false;
+
     return {
         slug : article.slug,
         title : article.title,
@@ -182,6 +214,8 @@ function articleInfo(article, currentUser) {
         body : article.body,
         tagList : article.tagList,
         author : profileInfo(article.author, currentUser),
+        favorited : isFavorite,
+        favoritesCount : article.favorites.length,
         createdAt : article.createdAt,
         updatedAt : article.updatedAt
     }
