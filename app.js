@@ -30,8 +30,12 @@ app.use('/api/users', usersRouter);
 app.use('/api/profiles', profilesRouter);
 app.use('/api/articles', articlesRouter);
 
+app.use((req, res, next) => {
+    return res.status(404).json({ errors: { body : [ "Page not found" ]}});
+});
+
 app.use((error, req, res, next) => {
-    return res.status(500).json({ errors: { body : [ error.toString() ]}});
+    return res.status(500).json({ errors: { body : [ error ]}});
 });
 
 module.exports = app;
