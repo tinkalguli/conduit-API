@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
-    return res.status(500).json({ errors: { body : [ error ]}});
+    return res.status(500).json({ errors: { body : [ error.toString() ]}});
 });
 
 module.exports = app;
