@@ -33,12 +33,8 @@ router.put('/user', jwt.verifyToken, async (req, res, next) => {
 // Get all tags
 router.get("/tags", async (req, res, next) => {
   try {
-    var articles = await Article.find({});
-
-    res.status(200).json(
-      { tags : articles.map(article => article.tagList)
-      .reduce((a, c) => a.concat(c), [])});
-
+    var tags = await Article.find({}).distinct("tagList");
+    res.status(200).json({ tags });
   } catch (error) {
     next(error);
   }

@@ -3,7 +3,7 @@ var router = express.Router();
 var User = require("../models/User");
 var jwt = require("../modules/token");
 
-// get current user profile
+// get user profile
 router.get('/:username', jwt.verifyToken, async (req, res, next) => {
     try {
       var username = req.params.username;
