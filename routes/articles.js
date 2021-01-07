@@ -73,8 +73,8 @@ router.get("/feed", jwt.verifyToken, async (req, res, next) => {
 
 // create article
 router.post("/", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.body.article.title.trim().toLowerCase().replaceAll(" ", "-");
-    req.body.article.slug = slug;
+    // var slug = req.body.article.title.trim().toLowerCase().replaceAll(" ", "-");
+    // req.body.article.slug = slug;
     req.body.article.author = req.user.id;
 
     try {

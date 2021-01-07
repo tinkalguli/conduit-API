@@ -17,9 +17,9 @@ exports.verifyToken = async (req, res, next) => {
             req.user = user;
             next();
         } catch (error) {
-            res.status(401).json({ error });
+            res.status(401).json({ errors : { body : [ error.toString() ]}});
         }
     } else {
-        res.status(401).json({ error : "token required for validation"});
+        res.status(401).json({ errors : { body : [ "token required for validation" ] }});
     }
 }

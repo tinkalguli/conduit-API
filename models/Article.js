@@ -1,9 +1,12 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+var slug = require('mongoose-slug-generator');
+var options = { separator: "_", lang: "en", truncate: 50 };
+mongoose.plugin(slug, options);
 
 var articleSchema = new Schema({
-    slug : { type : String, unique : true, required : true },
-    title : { type : String, required : true, unique : true },
+    slug : { type : String, unique : true, slug: "title", slug_padding_size: 4 },
+    title : { type : String, required : true },
     description : { type : String, minlength : 10 },
     body : { type : String, minlength : 20 },
     tagList : [{ type : String }],
