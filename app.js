@@ -11,7 +11,7 @@ var usersRouter = require('./routes/users').router;
 var profilesRouter = require('./routes/profiles').router;
 var articlesRouter = require('./routes/articles');
 
-mongoose.connect("mongodb://localhost/api",
+mongoose.connect(process.env.MONGODB_URI,
 { useNewUrlParser: true, useUnifiedTopology: true },
 (err) => {
     console.log(err ? err : "Connected");
