@@ -9,17 +9,16 @@ var { profileInfo } = require("./profiles");
 var { verifyAuthor } = require("../midlewares/auth");
 
 // get all articles
-router.get("/", jwt.verifyToken, async (req, res, next) => {
-    var query = req.query;
-    var filter = {};
-    var limit = 20;
-    var offset = 0;
-    
-    if(query.tag) filter.tagList = { $in : [query.tag] };
-    if(query.limit) limit = +query.limit;
-    if(query.offset) offset = +query.offset;
-
+router.get("/", jwt.verifyTokenOptional, async (req, res, next) => {
     try {
+        var query = req.query;
+        var filter = {};
+        var limit = 20;
+        var offset = 0;
+        
+        if(query.tag) filter.tagList = { $in : [query.tag] };
+        if(query.limit) limit = +query.limit;
+        if(query.offset) offset = +query.offset;
         if(query.author) {
             var author = await User.findOne({ username : query.author });
             filter.author = author.id;
@@ -47,14 +46,13 @@ router.get("/", jwt.verifyToken, async (req, res, next) => {
 
 // get articles feed
 router.get("/feed", jwt.verifyToken, async (req, res, next) => {
-    var query = req.query;
-    var limit = 20;
-    var offset = 0;
-
-    if(query.limit) limit = +query.limit;
-    if(query.offset) offset = +query.offset;
-
     try {
+        var query = req.query;
+        var limit = 20;
+        var offset = 0;
+    
+        if(query.limit) limit = +query.limit;
+        if(query.offset) offset = +query.offset;
         var articles = await Article.find({ author : req.user.id })
             .populate("author").skip(offset).limit(limit)
             .sort({ updatedAt : -1 });
@@ -73,11 +71,8 @@ router.get("/feed", jwt.verifyToken, async (req, res, next) => {
 
 // create article
 router.post("/", jwt.verifyToken, async (req, res, next) => {
-    // var slug = req.body.article.title.trim().toLowerCase().replaceAll(" ", "-");
-    // req.body.article.slug = slug;
-    req.body.article.author = req.user.id;
-
     try {
+        req.body.article.author = req.user.id;
         var article = await (await Article.create(req.body.article))
             .execPopulate("author");
 
@@ -89,9 +84,8 @@ router.post("/", jwt.verifyToken, async (req, res, next) => {
 
 // get one article
 router.get("/:slug", async (req, res, next) => {
-    var slug = req.params.slug;
-
     try {
+        var slug = req.params.slug;
         var article = await Article.findOne({ slug }).populate("author");
         res.status(200).json({ article : articleInfo(article) });
     } catch (error) {
@@ -122,8 +116,8 @@ router.put("/:slug", jwt.verifyToken, async (req, res, next) => {
 
 // delete article
 router.delete("/:slug", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.params.slug;
     try {
+        var slug = req.params.slug;
         var currentArticle = await Article.findOne({ slug });
         verifyAuthor(currentArticle.author, req.user.id, res);
         var article = await Article.findOneAndDelete({ slug });
@@ -135,10 +129,9 @@ router.delete("/:slug", jwt.verifyToken, async (req, res, next) => {
 
 
 // Get all comments of an article
-router.get("/:slug/comments", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.params.slug;
-
+router.get("/:slug/comments", jwt.verifyTokenOptional, async (req, res, next) => {
     try {
+        var slug = req.params.slug;
         var article = await Article.findOne({ slug }).populate({ path : "comments", populate : "author"});
         res.status(200).json({ comments : article.comments.map(comment => commentInfo(comment, req.user)) });
     } catch (error) {
@@ -148,11 +141,10 @@ router.get("/:slug/comments", jwt.verifyToken, async (req, res, next) => {
 
 // create a comment
 router.post("/:slug/comments", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.params.slug;
-    var author = req.user.id;
-    req.body.comment.author = author;
-
     try {
+        var slug = req.params.slug;
+        var author = req.user.id;
+        req.body.comment.author = author;
         var comment = await (await Comment.create(req.body.comment)).execPopulate("author");
         var article = await Article.findOneAndUpdate(
             { slug }, { $addToSet : { comments : comment.id } });
@@ -165,10 +157,9 @@ router.post("/:slug/comments", jwt.verifyToken, async (req, res, next) => {
 
 // dalete a comment
 router.delete("/:slug/comments/:id", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.params.slug;
-    var commentId = req.params.id;
-
     try {
+        var slug = req.params.slug;
+        var commentId = req.params.id;
         var currentComment = await Comment.findById(commentId);
         verifyAuthor(currentComment.author, req.user.id, res);
         var comment = await Comment.findByIdAndDelete(commentId);
@@ -183,9 +174,8 @@ router.delete("/:slug/comments/:id", jwt.verifyToken, async (req, res, next) => 
 
 // favorite article
 router.post("/:slug/favorite", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.params.slug;
-
     try {
+        var slug = req.params.slug;
         var article = await Article.findOneAndUpdate(
             { slug }, { $addToSet : { favorites : req.user.id }}, { new : true })
             .populate("author");
@@ -198,9 +188,8 @@ router.post("/:slug/favorite", jwt.verifyToken, async (req, res, next) => {
 
 // unfavorite article
 router.delete("/:slug/favorite", jwt.verifyToken, async (req, res, next) => {
-    var slug = req.params.slug;
-
     try {
+        var slug = req.params.slug;
         var article = await Article.findOneAndUpdate(
             { slug }, { $pull : { favorites : req.user.id }}, { new : true })
             .populate("author");

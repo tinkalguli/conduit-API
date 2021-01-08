@@ -8,14 +8,33 @@ exports.generateJWT = async (user) => {
 }
 
 exports.verifyToken = async (req, res, next) => {
-    // console.log(req.headers);
     var token = req.headers.authorization;
     if (token) {
         try {
             var payload = await jwt.verify(token, process.env.SECRET);
             var user = await User.findById(payload.userId);
             req.user = user;
-            next();
+            return next();
+        } catch (error) {
+            res.status(401).json({ errors : { body : [ error.toString() ]}});
+        }
+    } else {
+        res.status(401).json({ errors : { body : [ "token required for validation" ] }});
+    }
+}
+
+exports.verifyTokenOptional = async (req, res, next) => {
+    if (!req.headers.authorization) {
+        return next();
+    }
+
+    var token = req.headers.authorization;
+    if (token) {
+        try {
+            var payload = await jwt.verify(token, process.env.SECRET);
+            var user = await User.findById(payload.userId);
+            req.user = user;
+            return next();
         } catch (error) {
             res.status(401).json({ errors : { body : [ error.toString() ]}});
         }
