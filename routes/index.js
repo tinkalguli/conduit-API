@@ -5,6 +5,13 @@ var User = require("../models/User");
 var jwt = require("../modules/token");
 var { userInfo } = require("./users");
 
+// api documentation
+router.get('/', (req, res, next) => {
+  res.type("text/html").status(200).send(
+    "<h1>Check out <a href='https://github.com/gothinkster/realworld/tree/master/api'>conduit api docs</a> for API info</h1>"
+  )
+});
+
 // get current user
 router.get('/user', jwt.verifyToken, async (req, res, next) => {
   try {
