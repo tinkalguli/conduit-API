@@ -5,11 +5,6 @@ var User = require("../models/User");
 var jwt = require("../modules/token");
 var { userInfo } = require("./users");
 
-/* GET home page. */
-router.get('/', async (req, res, next) => {
-  res.status(200).json({ message : "Welcome to conduit API"});
-});
-
 // get current user
 router.get('/user', jwt.verifyToken, async (req, res, next) => {
   try {
