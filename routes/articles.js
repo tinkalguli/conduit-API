@@ -99,12 +99,7 @@ router.put("/:slug", jwt.verifyToken, async (req, res, next) => {
         var slug = req.params.slug;
         var currentArticle = await Article.findOne({ slug });
         verifyAuthor(currentArticle.author, req.user.id, res);
-
-        if (req.body.article.title) {
-            let slug = req.body.article.title.toLowerCase().replaceAll(" ", "-");
-            req.body.article.slug = slug;
-        }
-
+        
         var article = await Article.findOneAndUpdate({ slug }, req.body.article, { new : true })
             .populate("author");
 
@@ -121,6 +116,7 @@ router.delete("/:slug", jwt.verifyToken, async (req, res, next) => {
         var currentArticle = await Article.findOne({ slug });
         verifyAuthor(currentArticle.author, req.user.id, res);
         var article = await Article.findOneAndDelete({ slug });
+        await Comment.deleteMany({ _id : { $in : article.comments }});
         res.status(200).json({ message : "Article deleted successfully" });
     } catch (error) {
         next(error);
@@ -155,7 +151,7 @@ router.post("/:slug/comments", jwt.verifyToken, async (req, res, next) => {
     }
 });
 
-// dalete a comment
+// delete a comment
 router.delete("/:slug/comments/:id", jwt.verifyToken, async (req, res, next) => {
     try {
         var slug = req.params.slug;

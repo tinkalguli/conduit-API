@@ -25,7 +25,7 @@ router.post("/login", async (req, res, next) => {
       var token = await jwt.generateJWT(user);
       res.status(200).json({user : {...userInfo(user), token }});
     } else {
-      res.status(400).json({ error : "Invalid Password"});
+      res.status(403).json({ error : { body : [ "Invalid Password" ]}});
     }
   } catch (error) {
     next(error);

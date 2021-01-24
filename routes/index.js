@@ -26,7 +26,12 @@ router.get('/user', jwt.verifyToken, async (req, res, next) => {
 router.put('/user', jwt.verifyToken, async (req, res, next) => {
   try {
     var updatedUser = await User.findByIdAndUpdate(req.user.id, req.body.user, { new : true });
-    res.status(200).json({ user : userInfo(updatedUser) });
+    if (req.body.user.email) {
+      var token = await jwt.generateJWT(updatedUser);
+      res.status(200).json({ user : {...userInfo(updatedUser), token }});
+    } else {
+      res.status(200).json({ user : userInfo(updatedUser) });
+    }
   } catch (error) {
     next(error);
   }

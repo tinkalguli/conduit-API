@@ -1,7 +1,7 @@
 module.exports = {
     verifyAuthor : (authorId, currentUserId, res) => {
-        if (authorId !== currentUserId) {
-             res.status(403).json({ errors : { body : [ "You are not authorized" ]}});
+        if (authorId.toString() !== currentUserId.toString()) {
+             res.status(401).json({ errors : { body : [ "You are not authorized" ]}});
         }
     }
 }
