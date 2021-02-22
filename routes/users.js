@@ -26,7 +26,7 @@ router.post("/login", async (req, res, next) => {
       res.status(200).json({ user: { ...userInfo(user), token } });
     } else {
       res
-        .status(403)
+        .status(422)
         .json({ errors: { body: ["Invalid Email or Password"] } });
     }
   } catch (error) {

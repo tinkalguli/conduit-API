@@ -35,10 +35,7 @@ router.get("/", jwt.verifyTokenOptional, async (req, res, next) => {
       .limit(limit)
       .sort({ updatedAt: -1 });
 
-    var articlesCount = await Article.find(filter)
-      .skip(offset)
-      .limit(limit)
-      .count();
+    var articlesCount = await Article.find(filter).count();
 
     res.status(200).json({
       articles: articles.map((article) => articleInfo(article, req.user)),
@@ -93,11 +90,11 @@ router.post("/", jwt.verifyToken, async (req, res, next) => {
 });
 
 // get one article
-router.get("/:slug", async (req, res, next) => {
+router.get("/:slug", jwt.verifyTokenOptional, async (req, res, next) => {
   try {
     var slug = req.params.slug;
     var article = await Article.findOne({ slug }).populate("author");
-    res.status(200).json({ article: articleInfo(article) });
+    res.status(200).json({ article: articleInfo(article, req.user) });
   } catch (error) {
     next(error);
   }
@@ -148,9 +145,9 @@ router.get(
         populate: "author",
       });
       res.status(200).json({
-        comments: article.comments.map((comment) =>
-          commentInfo(comment, req.user)
-        ),
+        comments: article.comments
+          .map((comment) => commentInfo(comment, req.user))
+          .sort((a, b) => b.createdAt - a.createdAt),
       });
     } catch (error) {
       next(error);

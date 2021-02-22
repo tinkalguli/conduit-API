@@ -1,5 +1,4 @@
 var mongoose = require("mongoose");
-var uniqueValidator = require("mongoose-unique-validator");
 var bcrypt = require("bcrypt");
 
 var userSchema = new mongoose.Schema(
@@ -13,10 +12,6 @@ var userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-userSchema.plugin(uniqueValidator, {
-  message: `{PATH} is already in use`,
-});
 
 userSchema.pre("save", function (next) {
   if (this.password) {

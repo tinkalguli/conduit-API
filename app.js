@@ -3,6 +3,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
+var { MongoError } = require("mongodb");
 
 require("dotenv").config();
 
@@ -37,6 +38,9 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
+  if (error instanceof MongoError) {
+    return res.status(422).json({ errors: { body: [error.toString()] } });
+  }
   return res.status(500).json({ errors: { body: [error.toString()] } });
 });
 
